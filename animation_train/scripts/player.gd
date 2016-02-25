@@ -3,7 +3,7 @@ extends RigidBody2D
 # mode is character prevents rotating
 
 var speed = 200
-var jump_strength = -250
+var jump_strength = -350
 var gravity = 300
 var accerleration = 5
 
@@ -24,9 +24,16 @@ var state_before = "no_state"
 var x_velocity = 0
 var target_linear_velocity = 200
 
+var animationplayer
+var current_animation = "base"
+var new_animation = "base"
+var blendtime = 1
+var animation_speed = 1
+
 func _ready():
 	set_applied_force(Vector2(0, gravity))
 	get_node("ground_detector").add_exception(self)
+	animationplayer = get_node("orientation/dude/AnimationPlayer")
 	set_fixed_process(true)
 
 func _integrate_forces(state):
@@ -38,7 +45,13 @@ func _fixed_process(delta):
 	check_inputs()
 	calc_linear_velocity(delta)
 	check_orientation()
+	check_animation()
 	check_state()
+
+func check_animation():
+	if not current_animation == new_animation:
+		animationplayer.play(new_animation, blendtime, animation_speed)
+		current_animation = new_animation
 
 func check_orientation():
 	if left_current == "player_left" and not orientation == "left":
@@ -54,14 +67,35 @@ func calc_linear_velocity(delta):
 	if state_player == "ground":
 		if left_current == "player_left":
 			x_velocity = lerp(x_velocity, -1 * target_linear_velocity, accerleration * delta)
+			new_animation = "walk"
+			blendtime = 0.5
+			animation_speed = 1.1
 		if right_current == "player_right":
 			x_velocity = lerp(x_velocity, target_linear_velocity, accerleration * delta)
+			new_animation = "walk"
+			blendtime = 0.5
+			animation_speed = 1.1
 		if left_current == "not_pressed" and not right_current == "player_right":
 			x_velocity = lerp(x_velocity, 0, accerleration * delta)
+			new_animation = "idle"
+			blendtime = 0.5
+			animation_speed = 0.7
 		if right_current == "not_pressed" and not left_current == "player_left":
 			x_velocity = lerp(x_velocity, 0, accerleration * delta)
+			new_animation = "idle"
+			blendtime = 0.5
+			animation_speed = 0.7
 		if jump_current == "player_jump":
 			set_axis_velocity(Vector2(0, jump_strength))
+	if state_player == "air":
+		if get_linear_velocity().y < 0:
+			new_animation = "jump_up"
+			blendtime = 0.7
+			animation_speed = 1
+		else:
+			new_animation = "jump_down"
+			blendtime = 0.5
+			animation_speed = 1
 
 func check_state():
 	state_before = state_player
