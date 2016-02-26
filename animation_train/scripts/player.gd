@@ -2,9 +2,9 @@
 extends RigidBody2D
 # mode is character prevents rotating
 
-var speed = 200
-var jump_strength = -350
-var gravity = 300
+#var speed = 2000
+var jump_strength = -1000
+var gravity = 2000
 var accerleration = 5
 
 var left_current
@@ -22,7 +22,7 @@ var state_player = "no_state"
 var state_before = "no_state"
 
 var x_velocity = 0
-var target_linear_velocity = 200
+var target_linear_velocity = 800
 
 var animationplayer
 var current_animation = "base"
@@ -68,13 +68,13 @@ func calc_linear_velocity(delta):
 		if left_current == "player_left":
 			x_velocity = lerp(x_velocity, -1 * target_linear_velocity, accerleration * delta)
 			new_animation = "walk"
-			blendtime = 0.5
-			animation_speed = 1.1
+			blendtime = 0.3
+			animation_speed = 1.5
 		if right_current == "player_right":
 			x_velocity = lerp(x_velocity, target_linear_velocity, accerleration * delta)
 			new_animation = "walk"
-			blendtime = 0.5
-			animation_speed = 1.1
+			blendtime = 0.3
+			animation_speed = 1.5
 		if left_current == "not_pressed" and not right_current == "player_right":
 			x_velocity = lerp(x_velocity, 0, accerleration * delta)
 			new_animation = "idle"
@@ -90,7 +90,7 @@ func calc_linear_velocity(delta):
 	if state_player == "air":
 		if get_linear_velocity().y < 0:
 			new_animation = "jump_up"
-			blendtime = 0.7
+			blendtime = 0.2
 			animation_speed = 1
 		else:
 			new_animation = "jump_down"
